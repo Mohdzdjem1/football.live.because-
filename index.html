@@ -7,172 +7,292 @@
 
 <style>
 :root{
---bg:#0f172a;
---card:#1e293b;
---text:white;
---main:#2563eb;
+    --bg1:#0f172a;
+    --bg2:#1e293b;
+    --card:rgba(255,255,255,0.08);
+    --text:white;
+    --btn:#2563eb;
 }
 
+/* 🌞 Light Mode */
 body.light{
---bg:#f1f5f9;
---card:#ffffff;
---text:#0f172a;
+    --bg1:#e5e7eb;
+    --bg2:#f8fafc;
+    --card:rgba(0,0,0,0.06);
+    --text:#0f172a;
+    --btn:#3b82f6;
 }
 
 body{
 margin:0;
-font-family:sans-serif;
-background:var(--bg);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI";
+background: radial-gradient(circle at top,var(--bg1),var(--bg2));
 color:var(--text);
+overflow-x:hidden;
 transition:0.3s;
 }
 
-/* HEADER */
-.header{
+/* 🔥 عنوان محسّن */
+h1{
 text-align:center;
-padding:15px;
+margin-top:20px;
+font-size:30px;
+letter-spacing:1px;
 }
 
-.header h1{
-margin:5px;
-}
-
-/* BUTTON */
-button{
-background:var(--main);
-border:none;
-padding:10px;
-border-radius:10px;
-color:white;
-cursor:pointer;
-}
-
-/* SEARCH */
+/* 🔎 */
 input{
 width:90%;
 padding:12px;
-margin:10px;
-border-radius:10px;
+border-radius:12px;
 border:none;
+margin:10px;
+outline:none;
+background:var(--card);
+color:var(--text);
 }
 
-/* CARD */
+/* 📦 */
+.container{padding:15px;}
+
 .card{
 background:var(--card);
-margin:10px;
+backdrop-filter:blur(18px);
+border-radius:22px;
 padding:15px;
-border-radius:15px;
+margin:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+transition:0.25s;
 cursor:pointer;
-transition:0.2s;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-.card:hover{
-transform:scale(1.03);
-}
+.card:hover{transform:scale(1.04);}
 
-/* STAR */
 .star{
-float:left;
-cursor:pointer;
 color:gold;
+font-size:18px;
+cursor:pointer;
 }
 
-/* TOP BUTTON */
-.top{
-position:fixed;
-top:10px;
-right:10px;
+/* 🔘 */
+button{
+background:var(--btn);
+border:none;
+padding:10px 15px;
+border-radius:12px;
+color:white;
+cursor:pointer;
+margin:10px;
 }
 
 .hidden{display:none;}
 
+/* 🌗 */
+.toggle{
+position:fixed;
+top:10px;
+right:10px;
+z-index:999;
+}
 </style>
 </head>
 
 <body>
 
-<div class="top">
+<div class="toggle">
 <button onclick="toggleMode()">🌗</button>
 </div>
 
-<div class="header">
 <h1>⚽ Football TV Pro</h1>
-<p>تابع أفضل الأندية العالمية بسهولة</p>
-</div>
+
+<div class="container">
+
+<!-- HOME -->
+<div id="home">
 
 <input type="text" placeholder="🔎 ابحث عن نادي..." onkeyup="searchClub(this.value)">
 
-<div id="home"></div>
+<div class="card" onclick="openCountry('dz')">🇩🇿 الجزائر</div>
+<div class="card" onclick="openCountry('es')">🇪🇸 إسبانيا</div>
+<div class="card" onclick="openCountry('en')">🇬🇧 إنجلترا</div>
+<div class="card" onclick="openCountry('fr')">🇫🇷 فرنسا</div>
+<div class="card" onclick="openCountry('it')">🇮🇹 إيطاليا</div>
+<div class="card" onclick="openCountry('de')">🇩🇪 ألمانيا</div>
+<div class="card" onclick="openCountry('pt')">🇵🇹 البرتغال</div>
+<div class="card" onclick="openCountry('nl')">🇳🇱 هولندا</div>
+<div class="card" onclick="openCountry('sa')">🇸🇦 السعودية</div>
+
+</div>
+
+<!-- COUNTRY -->
+<div id="country" class="hidden">
+<button onclick="backHome()">⬅ رجوع</button>
+<h2 id="countryTitle"></h2>
+<div id="clubsList"></div>
+</div>
+
+<!-- CLUB -->
+<div id="clubPage" class="hidden">
+<button onclick="backCountry()">⬅ رجوع</button>
+
+<h2 id="clubName"></h2>
+
+<div class="card">
+<a id="ytLink" target="_blank">📺 القناة الرسمية</a>
+</div>
+</div>
+
+</div>
 
 <script>
 
-/* 🌗 الوضع */
+let currentCountry="";
+let favorites = JSON.parse(localStorage.getItem("fav")||"[]");
+
+/* 🌍 DATA */
+const data={
+dz:{
+name:"🇩🇿 الجزائر",
+clubs:{
+"MC Alger":"https://www.youtube.com/@mcalger",
+"JS Kabylie":"https://www.youtube.com/@jskabylie",
+"CR Belouizdad":"https://www.youtube.com/",
+"ES Setif":"https://www.youtube.com/"
+}
+},
+es:{
+name:"🇪🇸 إسبانيا",
+clubs:{
+"Barcelona":"https://www.youtube.com/@FCBarcelona",
+"Real Madrid":"https://www.youtube.com/@realmadrid",
+"Atletico Madrid":"https://www.youtube.com/@atleticodemadrid"
+}
+},
+en:{
+name:"🇬🇧 إنجلترا",
+clubs:{
+"Liverpool":"https://www.youtube.com/@liverpoolfc",
+"Chelsea":"https://www.youtube.com/@chelseafc",
+"Arsenal":"https://www.youtube.com/@arsenal",
+"Manchester City":"https://www.youtube.com/@mancity",
+"Manchester United":"https://www.youtube.com/@manutd"
+}
+},
+fr:{
+name:"🇫🇷 فرنسا",
+clubs:{
+"PSG":"https://www.youtube.com/@psg",
+"Marseille":"https://www.youtube.com/"
+}
+},
+it:{
+name:"🇮🇹 إيطاليا",
+clubs:{
+"Juventus":"https://www.youtube.com/@juventus",
+"AC Milan":"https://www.youtube.com/@acmilan",
+"Inter":"https://www.youtube.com/@inter"
+}
+},
+de:{
+name:"🇩🇪 ألمانيا",
+clubs:{
+"Bayern Munich":"https://www.youtube.com/@fcbayern",
+"Dortmund":"https://www.youtube.com/@bvb"
+}
+},
+pt:{
+name:"🇵🇹 البرتغال",
+clubs:{
+"Benfica":"https://www.youtube.com/",
+"Porto":"https://www.youtube.com/"
+}
+},
+nl:{
+name:"🇳🇱 هولندا",
+clubs:{
+"Ajax":"https://www.youtube.com/"
+}
+},
+sa:{
+name:"🇸🇦 السعودية",
+clubs:{
+"Al Hilal":"https://www.youtube.com/",
+"Al Nassr":"https://www.youtube.com/"
+}
+}
+};
+
+/* 🌗 */
 function toggleMode(){
 document.body.classList.toggle("light");
 }
 
-/* ⭐ مفضلة */
-let fav = JSON.parse(localStorage.getItem("fav")||"[]");
+/* NAV */
+function openCountry(c){
+currentCountry=c;
+home.style.display="none";
+country.style.display="block";
 
-/* 🌍 البيانات */
-const data={
-"🇩🇿 الجزائر":["MC Alger","JS Kabylie","CRB","ES Setif"],
-"🇪🇸 إسبانيا":["Barcelona","Real Madrid","Atletico Madrid"],
-"🇬🇧 إنجلترا":["Liverpool","Chelsea","Arsenal","Man City","Man United"],
-"🇫🇷 فرنسا":["PSG","Marseille"],
-"🇮🇹 إيطاليا":["Juventus","Inter","AC Milan"],
-"🇩🇪 ألمانيا":["Bayern","Dortmund"],
-"🇵🇹 البرتغال":["Benfica","Porto"],
-"🇳🇱 هولندا":["Ajax"],
-"🇧🇷 البرازيل":["Flamengo"],
-"🇦🇷 الأرجنتين":["Boca Juniors"],
-"🇸🇦 السعودية":["Al Hilal","Al Nassr"]
-};
+countryTitle.innerText=data[c].name;
+clubsList.innerHTML="";
 
-const home=document.getElementById("home");
-
-/* عرض */
-for(let country in data){
-
-let cTitle=document.createElement("div");
-cTitle.className="card";
-cTitle.innerHTML="🌍 "+country;
-home.appendChild(cTitle);
-
-data[country].forEach(club=>{
+for(let club in data[c].clubs){
 let div=document.createElement("div");
 div.className="card";
 
-let star = fav.includes(club) ? "⭐" : "☆";
+let star = favorites.includes(club) ? "⭐" : "☆";
 
 div.innerHTML=`${club} <span class="star">${star}</span>`;
 
-div.onclick=()=>{
+div.onclick=()=>openClub(club);
+
+/* ⭐ */
+div.querySelector(".star").onclick=(e)=>{
+e.stopPropagation();
 toggleFav(club);
 };
 
-home.appendChild(div);
-});
+clubsList.appendChild(div);
+}
+}
 
+function openClub(name){
+clubPage.style.display="block";
+country.style.display="none";
+
+clubName.innerText=name;
+ytLink.href=data[currentCountry].clubs[name];
+}
+
+function backHome(){
+country.style.display="none";
+home.style.display="block";
+}
+
+function backCountry(){
+clubPage.style.display="none";
+country.style.display="block";
 }
 
 /* ⭐ */
 function toggleFav(club){
-if(fav.includes(club)){
-fav=fav.filter(c=>c!==club);
+if(favorites.includes(club)){
+favorites=favorites.filter(c=>c!==club);
 }else{
-fav.push(club);
+favorites.push(club);
 }
-localStorage.setItem("fav",JSON.stringify(fav));
-location.reload();
+localStorage.setItem("fav",JSON.stringify(favorites));
+openCountry(currentCountry);
 }
 
 /* 🔎 */
 function searchClub(val){
 val=val.toLowerCase();
-
 document.querySelectorAll(".card").forEach(c=>{
-c.style.display = c.innerText.toLowerCase().includes(val) ? "block":"none";
+c.style.display = c.innerText.toLowerCase().includes(val) ? "flex":"none";
 });
 }
 
