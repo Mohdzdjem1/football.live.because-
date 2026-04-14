@@ -24,56 +24,83 @@ body.light{
 
 body{
 margin:0;
-font-family:-apple-system,"Segoe UI";
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI";
 background: radial-gradient(circle at top,var(--bg1),var(--bg2));
 color:var(--text);
+overflow-x:hidden;
+transition:0.3s;
 }
 
 h1{
 text-align:center;
 margin-top:20px;
+font-size:30px;
+letter-spacing:1px;
+}
+
+input{
+width:90%;
+padding:12px;
+border-radius:12px;
+border:none;
+margin:10px;
+outline:none;
+background:var(--card);
+color:var(--text);
 }
 
 .container{padding:15px;}
 
 .card{
 background:var(--card);
-border-radius:20px;
+backdrop-filter:blur(18px);
+border-radius:22px;
 padding:15px;
-margin:10px;
+margin:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+transition:0.25s;
+cursor:pointer;
 display:flex;
 justify-content:space-between;
-cursor:pointer;
+align-items:center;
 }
 
-.star{color:gold;cursor:pointer;}
+.card:hover{transform:scale(1.04);}
+
+.star{
+color:gold;
+font-size:18px;
+cursor:pointer;
+}
 
 button{
 background:var(--btn);
 border:none;
-padding:10px;
-border-radius:10px;
+padding:10px 15px;
+border-radius:12px;
 color:white;
-margin:5px;
 cursor:pointer;
+margin:10px;
 }
 
 .hidden{display:none;}
 
-.top{
+.toggle{
 position:fixed;
 top:10px;
 right:10px;
+z-index:999;
+display:flex;
+gap:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
+<div class="toggle">
 <button onclick="toggleMode()">🌗</button>
 <button onclick="toggleLang()">🌐</button>
-<button onclick="openFav()">⭐</button>
 </div>
 
 <h1 id="title">⚽ Football TV Pro</h1>
@@ -81,53 +108,124 @@ right:10px;
 <div class="container">
 
 <div id="home">
-<input id="search" type="text" placeholder="🔎 ابحث..." onkeyup="searchClub(this.value)">
+
+<input id="searchBox" type="text" placeholder="🔎 ابحث عن نادي..." onkeyup="searchClub(this.value)">
+
 <div class="card" onclick="openCountry('dz')">🇩🇿 الجزائر</div>
 <div class="card" onclick="openCountry('es')">🇪🇸 إسبانيا</div>
 <div class="card" onclick="openCountry('en')">🇬🇧 إنجلترا</div>
+<div class="card" onclick="openCountry('fr')">🇫🇷 فرنسا</div>
+<div class="card" onclick="openCountry('it')">🇮🇹 إيطاليا</div>
+<div class="card" onclick="openCountry('de')">🇩🇪 ألمانيا</div>
+<div class="card" onclick="openCountry('pt')">🇵🇹 البرتغال</div>
+<div class="card" onclick="openCountry('nl')">🇳🇱 هولندا</div>
+<div class="card" onclick="openCountry('sa')">🇸🇦 السعودية</div>
+
 </div>
 
 <div id="country" class="hidden">
-<button onclick="backHome()">⬅</button>
+<button onclick="backHome()" id="back1">⬅ رجوع</button>
 <h2 id="countryTitle"></h2>
 <div id="clubsList"></div>
 </div>
 
 <div id="clubPage" class="hidden">
-<button onclick="backCountry()">⬅</button>
+<button onclick="backCountry()" id="back2">⬅ رجوع</button>
 <h2 id="clubName"></h2>
-<div class="card">
-<a id="ytLink" target="_blank">📺</a>
-</div>
-</div>
 
-<div id="favoritesPage" class="hidden">
-<button onclick="backHome()">⬅</button>
-<h2 id="favTitle">⭐ المفضلة</h2>
-<div id="favList"></div>
+<div class="card">
+<a id="ytLink" target="_blank">📺 القناة الرسمية</a>
+</div>
 </div>
 
 </div>
 
 <script>
 
-let lang = localStorage.getItem("lang") || "ar";
-let favorites = JSON.parse(localStorage.getItem("fav")||"[]");
 let currentCountry="";
+let favorites = JSON.parse(localStorage.getItem("fav")||"[]");
+let lang = localStorage.getItem("lang") || "ar";
 
+/* 🌍 DATA */
 const data={
-dz:{name:{ar:"🇩🇿 الجزائر",en:"Algeria"},clubs:{
+dz:{
+nameAr:"🇩🇿 الجزائر",
+nameEn:"🇩🇿 Algeria",
+clubs:{
 "MC Alger":"https://www.youtube.com/@MouloudiaClubAlger",
-"JS Kabylie":"https://www.youtube.com/@JSKabylieOfficiel"
-}},
-es:{name:{ar:"🇪🇸 إسبانيا",en:"Spain"},clubs:{
+"JS Kabylie":"https://www.youtube.com/@JSKabylieOfficiel",
+"CR Belouizdad":"https://www.youtube.com/@CRBelouizdadOfficiel",
+"ES Setif":"https://www.youtube.com/@EntenteSetifOfficiel"
+}
+},
+es:{
+nameAr:"🇪🇸 إسبانيا",
+nameEn:"🇪🇸 Spain",
+clubs:{
 "Barcelona":"https://www.youtube.com/@FCBarcelona",
-"Real Madrid":"https://www.youtube.com/@realmadrid"
-}},
-en:{name:{ar:"🇬🇧 إنجلترا",en:"England"},clubs:{
+"Real Madrid":"https://www.youtube.com/@realmadrid",
+"Atletico Madrid":"https://www.youtube.com/@atleticodemadrid"
+}
+},
+en:{
+nameAr:"🇬🇧 إنجلترا",
+nameEn:"🇬🇧 England",
+clubs:{
 "Liverpool":"https://www.youtube.com/@liverpoolfc",
-"Chelsea":"https://www.youtube.com/@chelseafc"
-}}
+"Chelsea":"https://www.youtube.com/@chelseafc",
+"Arsenal":"https://www.youtube.com/@arsenal",
+"Manchester City":"https://www.youtube.com/@mancity",
+"Manchester United":"https://www.youtube.com/@manutd"
+}
+},
+fr:{
+nameAr:"🇫🇷 فرنسا",
+nameEn:"🇫🇷 France",
+clubs:{
+"PSG":"https://www.youtube.com/@psg",
+"Marseille":"https://www.youtube.com/@olympiquedemarseille"
+}
+},
+it:{
+nameAr:"🇮🇹 إيطاليا",
+nameEn:"🇮🇹 Italy",
+clubs:{
+"Juventus":"https://www.youtube.com/@juventus",
+"AC Milan":"https://www.youtube.com/@acmilan",
+"Inter":"https://www.youtube.com/@inter"
+}
+},
+de:{
+nameAr:"🇩🇪 ألمانيا",
+nameEn:"🇩🇪 Germany",
+clubs:{
+"Bayern Munich":"https://www.youtube.com/@fcbayern",
+"Dortmund":"https://www.youtube.com/@bvb"
+}
+},
+pt:{
+nameAr:"🇵🇹 البرتغال",
+nameEn:"🇵🇹 Portugal",
+clubs:{
+"Benfica":"https://www.youtube.com/@slbenfica",
+"Porto":"https://www.youtube.com/@fcp"
+}
+},
+nl:{
+nameAr:"🇳🇱 هولندا",
+nameEn:"🇳🇱 Netherlands",
+clubs:{
+"Ajax":"https://www.youtube.com/@afcajax"
+}
+},
+sa:{
+nameAr:"🇸🇦 السعودية",
+nameEn:"🇸🇦 Saudi Arabia",
+clubs:{
+"Al Hilal":"https://www.youtube.com/@alhilal",
+"Al Nassr":"https://www.youtube.com/@alnassr"
+}
+}
 };
 
 /* 🌗 */
@@ -135,11 +233,32 @@ function toggleMode(){
 document.body.classList.toggle("light");
 }
 
-/* 🌐 */
+/* 🌐 LANGUAGE */
 function toggleLang(){
-lang = lang==="ar" ? "en":"ar";
-localStorage.setItem("lang",lang);
-location.reload();
+lang = (lang === "ar") ? "en" : "ar";
+localStorage.setItem("lang", lang);
+applyLang();
+}
+
+function applyLang(){
+document.documentElement.lang = lang;
+
+document.getElementById("title").innerText =
+lang === "ar" ? "⚽ كرة القدم TV برو" : "⚽ Football TV Pro";
+
+document.getElementById("searchBox").placeholder =
+lang === "ar" ? "🔎 ابحث عن نادي..." : "🔎 Search club...";
+
+document.getElementById("back1").innerText =
+lang === "ar" ? "⬅ رجوع" : "⬅ Back";
+
+document.getElementById("back2").innerText =
+lang === "ar" ? "⬅ رجوع" : "⬅ Back";
+
+document.querySelector("#clubPage a").innerText =
+lang === "ar" ? "📺 القناة الرسمية" : "📺 Official channel";
+
+if(currentCountry) openCountry(currentCountry);
 }
 
 /* NAV */
@@ -147,14 +266,17 @@ function openCountry(c){
 currentCountry=c;
 home.style.display="none";
 country.style.display="block";
-countryTitle.innerText=data[c].name[lang];
+
+countryTitle.innerText =
+lang === "ar" ? data[c].nameAr : data[c].nameEn;
 
 clubsList.innerHTML="";
+
 for(let club in data[c].clubs){
 let div=document.createElement("div");
 div.className="card";
 
-let star = favorites.includes(club) ? "⭐":"☆";
+let star = favorites.includes(club) ? "⭐" : "☆";
 
 div.innerHTML=`${club} <span class="star">${star}</span>`;
 
@@ -172,15 +294,14 @@ clubsList.appendChild(div);
 function openClub(name){
 clubPage.style.display="block";
 country.style.display="none";
+
 clubName.innerText=name;
 ytLink.href=data[currentCountry].clubs[name];
 }
 
 function backHome(){
-home.style.display="block";
 country.style.display="none";
-clubPage.style.display="none";
-favoritesPage.style.display="none";
+home.style.display="block";
 }
 
 function backCountry(){
@@ -199,20 +320,6 @@ localStorage.setItem("fav",JSON.stringify(favorites));
 openCountry(currentCountry);
 }
 
-/* ⭐ صفحة المفضلة */
-function openFav(){
-home.style.display="none";
-favoritesPage.style.display="block";
-
-favList.innerHTML="";
-favorites.forEach(club=>{
-let div=document.createElement("div");
-div.className="card";
-div.innerText=club;
-favList.appendChild(div);
-});
-}
-
 /* 🔎 */
 function searchClub(val){
 val=val.toLowerCase();
@@ -220,6 +327,9 @@ document.querySelectorAll(".card").forEach(c=>{
 c.style.display = c.innerText.toLowerCase().includes(val) ? "flex":"none";
 });
 }
+
+/* INIT */
+applyLang();
 
 </script>
 
