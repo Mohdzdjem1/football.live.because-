@@ -1,5 +1,3 @@
-# football.live.because-
-هو موقع لمشاهدة مبريات لأن وفي الحال حدث مباش امامك كئنك في الملعب
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -27,34 +25,34 @@ body.light{
 
 body{
 margin:0;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI";
+font-family:"Segoe UI",sans-serif;
 background: radial-gradient(circle at top,var(--bg1),var(--bg2));
 color:var(--text);
-overflow-x:hidden;
 transition:0.3s;
 }
 
-h1{
+/* 🔥 HEADER */
+.header{
 text-align:center;
-margin-top:20px;
-font-size:26px;
+padding:20px;
 }
 
-.container{padding:15px;}
-
-.card{
-background:var(--card);
-backdrop-filter:blur(18px);
-border-radius:22px;
-padding:15px;
-margin:12px;
-box-shadow:0 10px 30px rgba(0,0,0,0.25);
-transition:0.25s;
-cursor:pointer;
-color:var(--text);
+.header h1{
+margin:5px;
+font-size:28px;
 }
 
-.card:hover{transform:scale(1.04);}
+.header p{
+opacity:0.8;
+font-size:14px;
+}
+
+/* 🌗 زر */
+.toggle{
+position:fixed;
+top:10px;
+right:10px;
+}
 
 button{
 background:var(--btn);
@@ -63,9 +61,9 @@ padding:10px 15px;
 border-radius:12px;
 color:white;
 cursor:pointer;
-margin:10px;
 }
 
+/* 🔍 البحث */
 input{
 width:90%;
 padding:12px;
@@ -77,72 +75,62 @@ background:var(--card);
 color:var(--text);
 }
 
+/* 📦 كروت */
+.card{
+background:var(--card);
+border-radius:18px;
+padding:15px;
+margin:10px;
+cursor:pointer;
+transition:0.25s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+/* صفحات */
 .hidden{display:none;}
 
-.fade{animation:fadeIn 0.3s ease;}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* top bar */
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px;
-}
-
-.toggle{
-position:fixed;
-top:10px;
-right:10px;
-z-index:999;
-}
 </style>
 </head>
 
 <body>
 
-<!-- 🌗 زر التبديل -->
 <div class="toggle">
-<button onclick="toggleMode()">🌗 الوضع</button>
+<button onclick="toggleMode()">🌗</button>
 </div>
 
+<div class="header">
 <h1>⚽ Football TV Pro</h1>
+<p>أفضل موقع لمشاهدة ومتابعة أخبار الأندية العالمية ⚡</p>
+</div>
 
-<div class="container">
-
-<!-- HOME -->
-<div id="home" class="fade">
-
+<div id="home">
 <input type="text" placeholder="🔎 ابحث عن نادي..." onkeyup="searchClub(this.value)">
 
 <div class="card" onclick="openCountry('dz')">🇩🇿 الجزائر</div>
 <div class="card" onclick="openCountry('es')">🇪🇸 إسبانيا</div>
 <div class="card" onclick="openCountry('en')">🇬🇧 إنجلترا</div>
+<div class="card" onclick="openCountry('fr')">🇫🇷 فرنسا</div>
+<div class="card" onclick="openCountry('it')">🇮🇹 إيطاليا</div>
+<div class="card" onclick="openCountry('de')">🇩🇪 ألمانيا</div>
 
 </div>
 
-<!-- COUNTRY -->
-<div id="country" class="hidden fade">
+<div id="country" class="hidden">
 <button onclick="backHome()">⬅ رجوع</button>
 <h2 id="countryTitle"></h2>
 <div id="clubsList"></div>
 </div>
 
-<!-- CLUB -->
-<div id="clubPage" class="hidden fade">
+<div id="clubPage" class="hidden">
 <button onclick="backCountry()">⬅ رجوع</button>
-
 <h2 id="clubName"></h2>
 
 <div class="card">
-<a id="ytLink" target="_blank">📺 فتح القناة الرسمية</a>
+<a id="ytLink" target="_blank">📺 القناة الرسمية</a>
 </div>
-</div>
-
 </div>
 
 <script>
@@ -150,27 +138,55 @@ z-index:999;
 let currentCountry="";
 let currentClub=null;
 
-/* DATA */
+/* 🔥 DATA كبيرة */
 const data={
 dz:{
 name:"🇩🇿 الجزائر",
 clubs:{
 "MC Alger":"https://www.youtube.com/@mcalger",
-"JS Kabylie":"https://www.youtube.com/@jskabylie"
+"JS Kabylie":"https://www.youtube.com/@jskabylie",
+"CR Belouizdad":"https://www.youtube.com/",
+"ES Setif":"https://www.youtube.com/"
 }
 },
 es:{
 name:"🇪🇸 إسبانيا",
 clubs:{
 "Barcelona":"https://www.youtube.com/@FCBarcelona",
-"Real Madrid":"https://www.youtube.com/@realmadrid"
+"Real Madrid":"https://www.youtube.com/@realmadrid",
+"Atletico Madrid":"https://www.youtube.com/@atleticodemadrid"
 }
 },
 en:{
 name:"🇬🇧 إنجلترا",
 clubs:{
 "Manchester City":"https://www.youtube.com/@mancity",
-"Manchester United":"https://www.youtube.com/@manutd"
+"Manchester United":"https://www.youtube.com/@manutd",
+"Liverpool":"https://www.youtube.com/@liverpoolfc",
+"Chelsea":"https://www.youtube.com/@chelseafc",
+"Arsenal":"https://www.youtube.com/@arsenal"
+}
+},
+fr:{
+name:"🇫🇷 فرنسا",
+clubs:{
+"PSG":"https://www.youtube.com/@psg",
+"Marseille":"https://www.youtube.com/@olympiquedemarseille"
+}
+},
+it:{
+name:"🇮🇹 إيطاليا",
+clubs:{
+"Juventus":"https://www.youtube.com/@juventus",
+"AC Milan":"https://www.youtube.com/@acmilan",
+"Inter Milan":"https://www.youtube.com/@inter"
+}
+},
+de:{
+name:"🇩🇪 ألمانيا",
+clubs:{
+"Bayern Munich":"https://www.youtube.com/@fcbayern",
+"Dortmund":"https://www.youtube.com/@bvb"
 }
 }
 };
@@ -190,54 +206,51 @@ let isLight=document.body.classList.contains("light");
 setMode(isLight?"dark":"light");
 }
 
-(function initMode(){
+(function(){
 let saved=localStorage.getItem("mode")||"dark";
 setMode(saved);
 })();
 
-/* NAVIGATION */
+/* NAV */
 function openCountry(c){
 currentCountry=c;
-document.getElementById("home").classList.add("hidden");
-document.getElementById("country").classList.remove("hidden");
+home.style.display="none";
+country.style.display="block";
 
-document.getElementById("countryTitle").innerText=data[c].name;
-
-let list=document.getElementById("clubsList");
-list.innerHTML="";
+countryTitle.innerText=data[c].name;
+clubsList.innerHTML="";
 
 for(let club in data[c].clubs){
 let div=document.createElement("div");
 div.className="card";
 div.innerText=club;
 div.onclick=()=>openClub(club);
-list.appendChild(div);
+clubsList.appendChild(div);
 }
 }
 
 function openClub(name){
-currentClub=name;
+clubPage.style.display="block";
+country.style.display="none";
 
-document.getElementById("country").classList.add("hidden");
-document.getElementById("clubPage").classList.remove("hidden");
-
-document.getElementById("clubName").innerText=name;
-document.getElementById("ytLink").href=data[currentCountry].clubs[name];
+clubName.innerText=name;
+ytLink.href=data[currentCountry].clubs[name];
 }
 
 function backHome(){
-document.getElementById("country").classList.add("hidden");
-document.getElementById("home").classList.remove("hidden");
+country.style.display="none";
+home.style.display="block";
 }
 
 function backCountry(){
-document.getElementById("clubPage").classList.add("hidden");
-document.getElementById("country").classList.remove("hidden");
+clubPage.style.display="none";
+country.style.display="block";
 }
 
-/* SEARCH */
+/* 🔍 SEARCH */
 function searchClub(val){
 val=val.toLowerCase();
+
 document.querySelectorAll(".card").forEach(c=>{
 if(c.innerText.toLowerCase().includes(val)){
 c.style.display="block";
