@@ -1,0 +1,253 @@
+# football.live.because-
+هو موقع لمشاهدة مبريات لأن وفي الحال حدث مباش امامك كئنك في الملعب
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football TV Pro</title>
+
+<style>
+:root{
+    --bg1:#0f172a;
+    --bg2:#1e293b;
+    --card:rgba(255,255,255,0.08);
+    --text:white;
+    --btn:#2563eb;
+}
+
+/* 🌞 Light Mode */
+body.light{
+    --bg1:#e5e7eb;
+    --bg2:#f8fafc;
+    --card:rgba(0,0,0,0.06);
+    --text:#0f172a;
+    --btn:#3b82f6;
+}
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI";
+background: radial-gradient(circle at top,var(--bg1),var(--bg2));
+color:var(--text);
+overflow-x:hidden;
+transition:0.3s;
+}
+
+h1{
+text-align:center;
+margin-top:20px;
+font-size:26px;
+}
+
+.container{padding:15px;}
+
+.card{
+background:var(--card);
+backdrop-filter:blur(18px);
+border-radius:22px;
+padding:15px;
+margin:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+transition:0.25s;
+cursor:pointer;
+color:var(--text);
+}
+
+.card:hover{transform:scale(1.04);}
+
+button{
+background:var(--btn);
+border:none;
+padding:10px 15px;
+border-radius:12px;
+color:white;
+cursor:pointer;
+margin:10px;
+}
+
+input{
+width:90%;
+padding:12px;
+border-radius:12px;
+border:none;
+margin:10px;
+outline:none;
+background:var(--card);
+color:var(--text);
+}
+
+.hidden{display:none;}
+
+.fade{animation:fadeIn 0.3s ease;}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+/* top bar */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+}
+
+.toggle{
+position:fixed;
+top:10px;
+right:10px;
+z-index:999;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🌗 زر التبديل -->
+<div class="toggle">
+<button onclick="toggleMode()">🌗 الوضع</button>
+</div>
+
+<h1>⚽ Football TV Pro</h1>
+
+<div class="container">
+
+<!-- HOME -->
+<div id="home" class="fade">
+
+<input type="text" placeholder="🔎 ابحث عن نادي..." onkeyup="searchClub(this.value)">
+
+<div class="card" onclick="openCountry('dz')">🇩🇿 الجزائر</div>
+<div class="card" onclick="openCountry('es')">🇪🇸 إسبانيا</div>
+<div class="card" onclick="openCountry('en')">🇬🇧 إنجلترا</div>
+
+</div>
+
+<!-- COUNTRY -->
+<div id="country" class="hidden fade">
+<button onclick="backHome()">⬅ رجوع</button>
+<h2 id="countryTitle"></h2>
+<div id="clubsList"></div>
+</div>
+
+<!-- CLUB -->
+<div id="clubPage" class="hidden fade">
+<button onclick="backCountry()">⬅ رجوع</button>
+
+<h2 id="clubName"></h2>
+
+<div class="card">
+<a id="ytLink" target="_blank">📺 فتح القناة الرسمية</a>
+</div>
+</div>
+
+</div>
+
+<script>
+
+let currentCountry="";
+let currentClub=null;
+
+/* DATA */
+const data={
+dz:{
+name:"🇩🇿 الجزائر",
+clubs:{
+"MC Alger":"https://www.youtube.com/@mcalger",
+"JS Kabylie":"https://www.youtube.com/@jskabylie"
+}
+},
+es:{
+name:"🇪🇸 إسبانيا",
+clubs:{
+"Barcelona":"https://www.youtube.com/@FCBarcelona",
+"Real Madrid":"https://www.youtube.com/@realmadrid"
+}
+},
+en:{
+name:"🇬🇧 إنجلترا",
+clubs:{
+"Manchester City":"https://www.youtube.com/@mancity",
+"Manchester United":"https://www.youtube.com/@manutd"
+}
+}
+};
+
+/* 🌗 MODE */
+function setMode(mode){
+if(mode==="light"){
+document.body.classList.add("light");
+}else{
+document.body.classList.remove("light");
+}
+localStorage.setItem("mode",mode);
+}
+
+function toggleMode(){
+let isLight=document.body.classList.contains("light");
+setMode(isLight?"dark":"light");
+}
+
+(function initMode(){
+let saved=localStorage.getItem("mode")||"dark";
+setMode(saved);
+})();
+
+/* NAVIGATION */
+function openCountry(c){
+currentCountry=c;
+document.getElementById("home").classList.add("hidden");
+document.getElementById("country").classList.remove("hidden");
+
+document.getElementById("countryTitle").innerText=data[c].name;
+
+let list=document.getElementById("clubsList");
+list.innerHTML="";
+
+for(let club in data[c].clubs){
+let div=document.createElement("div");
+div.className="card";
+div.innerText=club;
+div.onclick=()=>openClub(club);
+list.appendChild(div);
+}
+}
+
+function openClub(name){
+currentClub=name;
+
+document.getElementById("country").classList.add("hidden");
+document.getElementById("clubPage").classList.remove("hidden");
+
+document.getElementById("clubName").innerText=name;
+document.getElementById("ytLink").href=data[currentCountry].clubs[name];
+}
+
+function backHome(){
+document.getElementById("country").classList.add("hidden");
+document.getElementById("home").classList.remove("hidden");
+}
+
+function backCountry(){
+document.getElementById("clubPage").classList.add("hidden");
+document.getElementById("country").classList.remove("hidden");
+}
+
+/* SEARCH */
+function searchClub(val){
+val=val.toLowerCase();
+document.querySelectorAll(".card").forEach(c=>{
+if(c.innerText.toLowerCase().includes(val)){
+c.style.display="block";
+}else{
+c.style.display="none";
+}
+});
+}
+
+</script>
+
+</body>
+</html>
