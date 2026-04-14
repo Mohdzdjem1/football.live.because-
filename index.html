@@ -6,151 +6,174 @@
 <title>Football TV Pro</title>
 
 <style>
+:root{
+--bg:#0f172a;
+--card:#1e293b;
+--text:white;
+--main:#2563eb;
+}
+
+body.light{
+--bg:#f1f5f9;
+--card:#ffffff;
+--text:#0f172a;
+}
+
 body{
 margin:0;
 font-family:sans-serif;
-background:#0f172a;
-color:white;
+background:var(--bg);
+color:var(--text);
+transition:0.3s;
 }
 
-/* 🔥 HEADER */
+/* HEADER */
 .header{
 text-align:center;
 padding:15px;
 }
 
+.header h1{
+margin:5px;
+}
+
+/* BUTTON */
 button{
-background:#2563eb;
+background:var(--main);
 border:none;
 padding:10px;
 border-radius:10px;
 color:white;
 cursor:pointer;
-margin:5px;
 }
 
-/* 📦 CARD */
+/* SEARCH */
+input{
+width:90%;
+padding:12px;
+margin:10px;
+border-radius:10px;
+border:none;
+}
+
+/* CARD */
 .card{
-background:#1e293b;
+background:var(--card);
 margin:10px;
 padding:15px;
 border-radius:15px;
 cursor:pointer;
+transition:0.2s;
 }
 
-/* ⭐ */
-.favorite{
-color:gold;
+.card:hover{
+transform:scale(1.03);
+}
+
+/* STAR */
+.star{
 float:left;
 cursor:pointer;
+color:gold;
 }
 
-.section{
-padding:10px;
-}
-
-/* 🔔 notification */
-.notify{
+/* TOP BUTTON */
+.top{
 position:fixed;
-bottom:20px;
-right:20px;
-background:#22c55e;
-padding:12px;
-border-radius:10px;
-display:none;
+top:10px;
+right:10px;
 }
+
+.hidden{display:none;}
 
 </style>
 </head>
 
 <body>
 
+<div class="top">
+<button onclick="toggleMode()">🌗</button>
+</div>
+
 <div class="header">
-<h2>⚽ Football TV Pro</h2>
-<button onclick="enableNotify()">🔔 تفعيل الإشعارات</button>
+<h1>⚽ Football TV Pro</h1>
+<p>تابع أفضل الأندية العالمية بسهولة</p>
 </div>
 
-<div class="section">
-<h3>⏰ مباريات اليوم</h3>
-<div id="matches"></div>
-</div>
+<input type="text" placeholder="🔎 ابحث عن نادي..." onkeyup="searchClub(this.value)">
 
-<div class="section">
-<h3>🌍 الأندية</h3>
-<div id="clubs"></div>
-</div>
-
-<div class="notify" id="notifyBox">🔔 مباراة بدأت الآن!</div>
+<div id="home"></div>
 
 <script>
 
-/* 🔥 مباريات وهمية (تقدر تبدلها) */
-const matches=[
-{team1:"Barcelona",team2:"Real Madrid",time:"21:00"},
-{team1:"Liverpool",team2:"Chelsea",time:"20:30"},
-{team1:"PSG",team2:"Marseille",time:"22:00"}
-];
-
-const matchesDiv=document.getElementById("matches");
-
-matches.forEach(m=>{
-let div=document.createElement("div");
-div.className="card";
-div.innerHTML=`⚽ ${m.team1} vs ${m.team2} - ⏰ ${m.time}`;
-matchesDiv.appendChild(div);
-});
+/* 🌗 الوضع */
+function toggleMode(){
+document.body.classList.toggle("light");
+}
 
 /* ⭐ مفضلة */
-let favorites = JSON.parse(localStorage.getItem("fav")||"[]");
+let fav = JSON.parse(localStorage.getItem("fav")||"[]");
 
-/* 🌍 أندية */
-const clubsList=[
-"Barcelona","Real Madrid","Liverpool","Chelsea","Arsenal",
-"PSG","Juventus","Bayern","Ajax","Al Nassr","Al Hilal"
-];
+/* 🌍 البيانات */
+const data={
+"🇩🇿 الجزائر":["MC Alger","JS Kabylie","CRB","ES Setif"],
+"🇪🇸 إسبانيا":["Barcelona","Real Madrid","Atletico Madrid"],
+"🇬🇧 إنجلترا":["Liverpool","Chelsea","Arsenal","Man City","Man United"],
+"🇫🇷 فرنسا":["PSG","Marseille"],
+"🇮🇹 إيطاليا":["Juventus","Inter","AC Milan"],
+"🇩🇪 ألمانيا":["Bayern","Dortmund"],
+"🇵🇹 البرتغال":["Benfica","Porto"],
+"🇳🇱 هولندا":["Ajax"],
+"🇧🇷 البرازيل":["Flamengo"],
+"🇦🇷 الأرجنتين":["Boca Juniors"],
+"🇸🇦 السعودية":["Al Hilal","Al Nassr"]
+};
 
-const clubsDiv=document.getElementById("clubs");
+const home=document.getElementById("home");
 
-clubsList.forEach(club=>{
+/* عرض */
+for(let country in data){
+
+let cTitle=document.createElement("div");
+cTitle.className="card";
+cTitle.innerHTML="🌍 "+country;
+home.appendChild(cTitle);
+
+data[country].forEach(club=>{
 let div=document.createElement("div");
 div.className="card";
 
-let star = favorites.includes(club) ? "⭐" : "☆";
+let star = fav.includes(club) ? "⭐" : "☆";
 
-div.innerHTML=`${club} <span class="favorite">${star}</span>`;
+div.innerHTML=`${club} <span class="star">${star}</span>`;
 
 div.onclick=()=>{
 toggleFav(club);
 };
 
-clubsDiv.appendChild(div);
+home.appendChild(div);
 });
 
-/* ⭐ toggle */
-function toggleFav(club){
-if(favorites.includes(club)){
-favorites=favorites.filter(c=>c!==club);
-}else{
-favorites.push(club);
 }
-localStorage.setItem("fav",JSON.stringify(favorites));
+
+/* ⭐ */
+function toggleFav(club){
+if(fav.includes(club)){
+fav=fav.filter(c=>c!==club);
+}else{
+fav.push(club);
+}
+localStorage.setItem("fav",JSON.stringify(fav));
 location.reload();
 }
 
-/* 🔔 إشعار */
-function enableNotify(){
-alert("تم تفعيل الإشعارات ✅");
+/* 🔎 */
+function searchClub(val){
+val=val.toLowerCase();
 
-/* تجربة إشعار بعد 5 ثواني */
-setTimeout(()=>{
-let box=document.getElementById("notifyBox");
-box.style.display="block";
-
-setTimeout(()=>{
-box.style.display="none";
-},4000);
-
-},5000);
+document.querySelectorAll(".card").forEach(c=>{
+c.style.display = c.innerText.toLowerCase().includes(val) ? "block":"none";
+});
 }
 
 </script>
